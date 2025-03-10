@@ -2,6 +2,7 @@
 #define HEAP_H
 #include <functional>
 #include <stdexcept>
+#include <vector>
 
 template <typename T, typename PComparator = std::less<T> >
 class Heap
@@ -59,16 +60,32 @@ public:
    */
   size_t size() const;
 
+  void bubbleUp(int index);
+  void bubbleDown(int index);
+
 private:
   /// Add whatever helper functions and data members you need below
-
-
-
-
+  int m;
+  PComparator compare;
+  std::vector<T> heapArray;
 };
 
 // Add implementation of member functions here
+template <typename T, typename PComparator>
+Heap<T, PComparator>::Heap(int m, PComparator c) : m(m), compare(c) {
 
+}
+
+template <typename T, typename PComparator>
+Heap<T, PComparator>::~Heap(){
+
+}
+
+template <typename T, typename PComparator>
+void Heap<T, PComparator>::push(const T& item){
+  heapArray.push_back(item);
+  bubbleUp(heapArray.size() - 1);
+}
 
 // We will start top() for you to handle the case of 
 // calling top on an empty heap
@@ -81,13 +98,12 @@ T const & Heap<T,PComparator>::top() const
     // ================================
     // throw the appropriate exception
     // ================================
-
+    throw std::underflow_error("heap is empty");
 
   }
   // If we get here we know the heap has at least 1 item
   // Add code to return the top element
-
-
+  return heapArray[0];
 
 }
 
@@ -101,15 +117,57 @@ void Heap<T,PComparator>::pop()
     // ================================
     // throw the appropriate exception
     // ================================
-
+    throw std::underflow_error("heap is empty");
 
   }
-
-
-
+  heapArray[0] = heapArray.back();
+  heapArray.pop_back();
+  bubbleDown(0);
 }
 
+template <typename T, typename PComparator>
+size_t Heap<T, PComparator>::size() const{
+  return heapArray.size();
+}
 
+template <typename T, typename PComparator>
+bool Heap<T, PComparator>::empty() const{
+  return heapArray.empty();
+}
+
+template <typename T, typename PComparator>
+void Heap<T, PComparator>::bubbleUp(int index){
+  while(index > 0){
+    int parent = (index - 1) / m;
+    if(compare(heapArray[parent], heapArray[index])){
+      break;
+    }
+    else{
+      std::swap(heapArray[parent], heapArray[index]);
+      index = parent;
+    }
+    
+  }
+}
+
+template <typename T, typename PComparator>
+void Heap<T, PComparator>::bubbleDown(int index){
+  size_t childIndex = m * index + 1;
+  while (childIndex < heapArray.size()) {
+    int bestChildIndex = childIndex;
+    for (int i = 0; i < m && (childIndex + i) < heapArray.size(); i++) {
+      if (!compare(heapArray[bestChildIndex], heapArray[childIndex + i])) {
+        bestChildIndex = childIndex + i;
+      }
+    }
+    if (compare(heapArray[bestChildIndex], heapArray[index])) {
+      std::swap(heapArray[bestChildIndex], heapArray[index]); 
+      index = bestChildIndex;
+      childIndex = m * index + 1;
+    }else{
+      break;
+    }
+  }
+}
 
 #endif
-
